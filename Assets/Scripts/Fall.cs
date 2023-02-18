@@ -13,6 +13,7 @@ public class Fall : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             _joint.enabled = false;
+            _joint.connectedBody = null;
         }
     }
 }
