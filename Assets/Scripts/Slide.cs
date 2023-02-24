@@ -22,26 +22,27 @@ public class Slide : MonoBehaviour
     private const float MinMoveDistance = 0.001f;
     private const float ShellRadius = 0.01f;
 
-    void OnEnable()
+    private void OnEnable()
     {
         _rb2d = GetComponent<Rigidbody2D>();
     }
 
-    void Start()
+    private void Start()
     {
         _contactFilter.useTriggers = false;
         _contactFilter.SetLayerMask(_layerMask);
         _contactFilter.useLayerMask = true;
     }
 
-    void Update()
+    private void Update()
     {
+
         Vector2 alongSurface = Vector2.Perpendicular(_groundNormal);
 
         _targetVelocity = alongSurface * _speed;
     }
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
         _velocity += _gravityModifier * Physics2D.gravity * Time.deltaTime;
         _velocity.x = _targetVelocity.x;
@@ -49,17 +50,23 @@ public class Slide : MonoBehaviour
         _grounded = false;
 
         Vector2 deltaPosition = _velocity * Time.deltaTime;
-        Vector2 moveAlongGround = new Vector2(_groundNormal.y, -_groundNormal.x);
+        Vector2 moveAlongGround = new Vector2(_groundNormal.y, _groundNormal.x);
         Vector2 move = moveAlongGround * deltaPosition.x;
+
+        if (_groundNormal.x > 0)
+            move.x *= -1;
+        else if(_groundNormal.x < 0)
+            move.y *= -1;
 
         Movement(move, false);
 
         move = Vector2.up * deltaPosition.y;
 
         Movement(move, true);
+
     }
 
-    void Movement(Vector2 move, bool yMovement)
+    private void Movement(Vector2 move, bool yMovement)
     {
         float distance = move.magnitude;
 
@@ -88,6 +95,7 @@ public class Slide : MonoBehaviour
                 }
 
                 float projection = Vector2.Dot(_velocity, currentNormal);
+
                 if (projection < 0)
                 {
                     _velocity = _velocity - projection * currentNormal;
@@ -99,5 +107,6 @@ public class Slide : MonoBehaviour
         }
 
         _rb2d.position = _rb2d.position + move.normalized * distance;
+
     }
 }
