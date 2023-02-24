@@ -9,12 +9,13 @@ public class Slide : MonoBehaviour
     [SerializeField] private Vector2 _velocity;
     [SerializeField] private LayerMask _layerMask;
     [SerializeField] private float _speed;
+    [SerializeField] private float _jump;
 
     private Rigidbody2D _rb2d;
 
     private Vector2 _groundNormal;
     private Vector2 _targetVelocity;
-    private bool _grounded;
+    private bool _isGrounded;
     private ContactFilter2D _contactFilter;
     private RaycastHit2D[] _hitBuffer = new RaycastHit2D[16];
     private List<RaycastHit2D> _hitBufferList = new List<RaycastHit2D>(16);
@@ -37,6 +38,14 @@ public class Slide : MonoBehaviour
     private void Update()
     {
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if(_isGrounded)
+            {
+                _velocity += _groundNormal * _jump;
+            }
+        }
+
         Vector2 alongSurface = Vector2.Perpendicular(_groundNormal);
 
         _targetVelocity = alongSurface * _speed;
@@ -47,7 +56,7 @@ public class Slide : MonoBehaviour
         _velocity += _gravityModifier * Physics2D.gravity * Time.deltaTime;
         _velocity.x = _targetVelocity.x;
 
-        _grounded = false;
+        _isGrounded = false;
 
         Vector2 deltaPosition = _velocity * Time.deltaTime;
         Vector2 moveAlongGround = new Vector2(_groundNormal.y, _groundNormal.x);
@@ -86,7 +95,7 @@ public class Slide : MonoBehaviour
                 Vector2 currentNormal = _hitBufferList[i].normal;
                 if (currentNormal.y > _minGroundNormalY)
                 {
-                    _grounded = true;
+                    _isGrounded = true;
                     if (yMovement)
                     {
                         _groundNormal = currentNormal;
